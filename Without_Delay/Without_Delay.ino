@@ -1,13 +1,13 @@
-#include <TaskManagerIO.h>
+const int NUMBER_OF_PINS = 6;
 
-#define NUMBER_OF_PINS 6
-
+long* micArr = new long[NUMBER_OF_PINS];
+long* intArr = new long[NUMBER_OF_PINS];
 int* led = new int[NUMBER_OF_PINS];
 int pins[NUMBER_OF_PINS] = {3, 5, 6, 9, 10, 11};
-long* intArr = new long[NUMBER_OF_PINS];
 
 void setup() {
   for (int i = 0; i < NUMBER_OF_PINS; ++i) {
+    micArr[i] = 0;
     led[i] = LOW;
     pinMode(pins[i], OUTPUT);
   }
@@ -18,10 +18,15 @@ void setup() {
   intArr[3] = 400000;
   intArr[4] = 200000;
   intArr[5] = 100000;
-  taskid_t taskId[6];
-  
-  for (int i = 0; i < 6; i++){
-    taskId[i] = taskManager.scheduleFixedRate(intArr[i], [] {
+}
+
+void loop() {
+  unsigned long micros_val = micros();
+
+  for (int i = 0; i< 6; i++){
+    if (micros_val - micArr[i] >= intArr[i]) {
+    micArr[i] = micros_val;
+
     if (led[i] == LOW) {
       led[i] = HIGH;
     }
@@ -30,10 +35,8 @@ void setup() {
     }
 
     digitalWrite(pins[i], led[i]);
-  }, TIME_MICROS);
   }
-}
+  }
 
-void loop() {
-  taskManager.runLoop();
+
 }
